@@ -1,0 +1,9 @@
+openai
+langchain
+transformers
+tiktoken
+faiss-cpu
+datasets
+pdf2image
+pandas
+numpy
