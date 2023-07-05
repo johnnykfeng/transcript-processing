@@ -1,6 +1,12 @@
 # About
 This package uses GPT to convert raw transcripts into essay format, then essay format into JSON metadata file. 
 
+# how-to-use
+Easiest way is to clone or fork this entire repo into your own local machine. 
+
+# Api key
+Enter your openai api key in `api_keys.py`
+
 # Pipeline
 Transcript --> Essay --> Metadata
 
