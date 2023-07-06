@@ -1,7 +1,8 @@
 
 from transcript_processing_functions import \
                         full_transcript2essay, \
-                        extract_metadata_as_json
+                        extract_metadata_as_json, \
+                        json2rst
 import os
 import json
 
@@ -38,9 +39,8 @@ if __name__ == '__main__':
     with open(metadata_filepath, 'w') as file:
         json.dump(metadata, file)
 
-    print_metadata = False
-    if print_metadata:
-        for key, value in metadata.items():
-            print(f'{key}: {value}')
+    # convert metadata from json to rst
+    rst_filepath = r'./metadata/test.rst'
+    json2rst(metadata, rst_filepath)
 
 

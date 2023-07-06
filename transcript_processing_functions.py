@@ -157,6 +157,7 @@ def extract_metadata_as_json(essay):
   'Summary', and 'Topics' as the keys and each topic will be keys for list of takeaways. \
   \n\n \
   Essay:\n```{text}```"""
+  
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
@@ -214,5 +215,34 @@ def generate_mc_questions(text):
   result = chat(chat_prompt.format_prompt(text=text).to_messages())
   return result.content
 
+def json2rst(metadata, rst_filepath):
+  if not isinstance(metadata, dict):
+      metadata = json.loads(metadata)
+  
+  # rst_filepath = './essays/test.rst'
+  with open(rst_filepath, 'a') as the_file:
+      the_file.write("\n\n")
+      for key, value in metadata.items():
+          if key == "Title":
+              title_mark = "=" * len(f'{value}')
+              the_file.write(title_mark + '\n')
+              the_file.write(f"{value} \n")
+              the_file.write(title_mark + '\n')
+          elif key == "Speaker":
+              the_file.write('*' + f"{value}" + '* \n\n')
+          elif key == "Summary":
+              title_mark = '-' * len(f'{key}')
+              the_file.write("Summary \n")
+              the_file.write(title_mark + '\n')
+              the_file.write(f"{value} \n\n")
+          elif key == "Topics":
+              the_file.write("Topics: \n")
+              the_file.write(title_mark + '\n')
+              for topic in value:
+                  the_file.write("\t" + f"{topic['Topic']} \n")
+                  for takeaway in topic['Takeaways']:
+                      the_file.write("\t\t" + f"* {takeaway} \n")
+
+  
 
 
