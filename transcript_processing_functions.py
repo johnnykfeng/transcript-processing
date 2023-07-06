@@ -142,11 +142,19 @@ def extract_metadata_as_json(essay):
   
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
+  # human_template = """\
+  # Given the essay delimited in triple backticks, generate and extract important \
+  # information such as the title, speaker, summary, a list of key topics, and a list of important takeaways. \
+  # Format the reponse as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
+  # 'Summary', 'Topics', and 'Takeaways' as the keys. \
+  # \n\n \
+  # Essay:\n```{text}```"""
+
   human_template = """\
   Given the essay delimited in triple backticks, generate and extract important \
-  information such as the title, speaker, summary, a list of key topics, and a list of important takeaways. \
+  information such as the title, speaker, summary, a list of key topics, and a list of important takeaways for each topic. \
   Format the reponse as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
-  'Summary', 'Topics', and 'Takeaways' as the keys. \
+  'Summary', and 'Topics' as the keys and each topic will be keys for list of takeaways. \
   \n\n \
   Essay:\n```{text}```"""
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
