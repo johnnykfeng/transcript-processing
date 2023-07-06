@@ -8,7 +8,7 @@ Easiest way is to clone or fork this entire repo into your own local machine.
 Enter your openai api key in `api_keys.py`
 
 # Pipeline
-Transcript --> Essay --> Metadata
+Transcript --> Essay --> Metadata (JSON) --> RST file
 
 Functions are stored in `transcript_processing_functions.py`
 
