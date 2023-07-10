@@ -24,6 +24,22 @@ chat = ChatOpenAI(
     temperature=0,
     model='gpt-3.5-turbo')
 
+chat16k = ChatOpenAI(
+    temperature=0,
+    model='gpt-3.5-turbo-16k')
+
+import time
+
+def timer_decorator(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.perf_counter()
+        result = func(*args, **kwargs)
+        end_time = time.perf_counter()
+        run_time = end_time - start_time
+        print(f"Finished {func.__name__!r} in {run_time:.4f} secs")
+        return result
+    return wrapper
+
 """# Part **1**: Processing raw transcript"""
 
 import tiktoken
@@ -67,7 +83,6 @@ def transcript_splitter(raw_transcript, chunk_size=10000, chunk_overlap=200):
   transcript_docs = markdown_splitter.create_documents([raw_transcript])
   return transcript_docs
 
-
 def transcript2essay(transcript):
   system_template = "You are a helpful assistant that summarizes the main points of a presentation about large-Language model and machine learning research"
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
@@ -107,10 +122,12 @@ def merge_essays(essays):
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  final_essay = chat(chat_prompt.format_prompt(essays=essays).to_messages())
+  # final_essay = chat(chat_prompt.format_prompt(essays=essays).to_messages())
+  final_essay = chat16k(chat_prompt.format_prompt(essays=essays).to_messages())
+
   return final_essay.content
 
-
+# @timer_decorator
 def full_transcript2essay(raw_transcript:str):
   transcript_docs = transcript_splitter(raw_transcript)
   essay_parts = create_essay_parts(transcript_docs)
@@ -118,17 +135,7 @@ def full_transcript2essay(raw_transcript:str):
   return final_essay
 
 
-
 # """# Part 2: Extracting from essay"""
-
-# final_essay_tokens = num_tokens_from_string(final_essay, "cl100k_base")
-# print(f'Number of tokens in generated essays: {final_essay_tokens}')
-
-# """## Extracting topics and key takeaways
-
-# Here I feed the essay into another prompt template to extract the topics and key takeaways away the original transcript. The response is formatted as a JSON object.
-# """
-
 
 # Extracting from generated essay
 def extract_topics_from_text(text, user_prompt):
@@ -158,50 +165,48 @@ def extract_metadata_as_json(essay):
   Given the essay delimited in triple backticks, generate and extract important \
   information such as the title, speaker, summary, a list of key topics, \
   and a list of important takeaways for each topic. \
-  Format the reponse as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
+  Format the response as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
   'Summary', and 'Topics' as the keys and each topic will be keys for list of takeaways. \
   Example of JSON output: \n \
-  {
-  "Title": "Title of the presentation",
-  "Speaker": "John Smith",
-  "Summary": "summary of the presentation",
-  "Topics": [
-    {
-      "Topic": "topic 1",
-      "Takeaways": [
-        "takeaway 1",
-        "takeaway 2",
-        "takeaway 3"
-      ]
-    },
-    {
-      "Topic": "topic 2",
-      "Takeaways": [
-        "takeaway 1",
-        "takeaway 2",
-        "takeaway 3"
-      ]
-    },
-    {
-      "Topic": "topic 3",
-      "Takeaways": [
-        "takeaway 1",
-        "takeaway 2",
-        "takeaway 3"
-      ]
-    },
-    {
-      "Topic": "topic 4",
-      "Takeaways": [
-        "takeaway 1",
-        "takeaway 2",
-        "takeaway 3"
-      ]
-    }
-  ]
-}
-\n\n \
-Essay:\n```{text}```"""
+ {\
+  'Title': 'Title of the presentation',\
+  'Speaker': 'John Smith',\
+  'Summary': 'summary of the presentation',\
+  'Topics': [\
+  {\
+  'Topic': 'topic 1',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]\
+  },\
+  {\
+  'Topic': 'topic 2',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]\
+  },\
+  {\
+  'Topic': 'topic 3',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]\
+  },\
+  {\
+  'Topic': 'topic 4',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]}]}\
+  \n\n \
+  Essay:\n```{text}```\
+  """
   
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
@@ -210,6 +215,68 @@ Essay:\n```{text}```"""
   metadata_json = json.loads(result.content)
 
   return metadata_json
+
+
+def extract_metadata_as_json_v2(essay):
+
+  system_template = """ Given the essay delimited in triple backticks, generate and extract important \
+  information such as the title, speaker, summary, a list of key topics, \
+  and a list of important takeaways for each topic. \
+  Format the response as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
+  'Summary', and 'Topics' as the keys and each topic will be keys for list of takeaways. \
+  Example of JSON output: \n \
+ {{\
+  'Title': 'Title of the presentation',\
+  'Speaker': 'John Smith',\
+  'Summary': 'summary of the presentation',\
+  'Topics': [\
+  {{\
+  'Topic': 'topic 1',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]\
+  }},\
+  {{\
+  'Topic': 'topic 2',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]\
+  }},\
+  {{\
+  'Topic': 'topic 3',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]\
+  }},\
+  {{\
+  'Topic': 'topic 4',\
+  'Takeaways': [\
+  'takeaway 1',\
+  'takeaway 2',\
+  'takeaway 3'\
+  ]\
+  }}\
+  ]\
+  }}"""
+  
+  system_prompt = SystemMessagePromptTemplate.from_template(system_template)
+
+  human_template = """Essay: ```{text}```"""
+  
+  human_prompt = HumanMessagePromptTemplate.from_template(human_template)
+  chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
+
+  result = chat(chat_prompt.format_prompt(text=essay).to_messages())
+  metadata_json = json.loads(result.content)
+
+  return metadata_json
+
 
 # """#Part 3: Experimental"""
 
@@ -265,8 +332,8 @@ def json2rst(metadata, rst_filepath):
       metadata = json.loads(metadata)
   
   # rst_filepath = './essays/test.rst'
-  with open(rst_filepath, 'a') as the_file:
-      the_file.write("\n\n")
+  with open(rst_filepath, 'w') as the_file:
+      the_file.write("\n")
       for key, value in metadata.items():
           if key == "Title":
               title_mark = "=" * len(f'{value}')
@@ -287,6 +354,7 @@ def json2rst(metadata, rst_filepath):
                   the_file.write("\t" + f"{topic['Topic']} \n")
                   for takeaway in topic['Takeaways']:
                       the_file.write("\t\t" + f"* {takeaway} \n")
+      the_file.write("\n")
 
   
 
