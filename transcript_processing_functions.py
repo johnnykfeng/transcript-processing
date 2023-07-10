@@ -34,6 +34,18 @@ def num_tokens_from_string(string: str, encoding_name="cl100k_base") -> int:
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
+
+import docx
+
+def extract_text_from_docx(file_path):
+    """Extracts text from a docx file."""
+    doc = docx.Document(file_path)
+    text = []
+    for paragraph in doc.paragraphs:
+        text.append(paragraph.text)
+    return '\n'.join(text)
+
+
 def transcript_token_size(raw_transcript, verbose = True):
   char_len = len(raw_transcript)
   token_len = num_tokens_from_string(raw_transcript)
@@ -142,21 +154,54 @@ def extract_metadata_as_json(essay):
   
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
-  # human_template = """\
-  # Given the essay delimited in triple backticks, generate and extract important \
-  # information such as the title, speaker, summary, a list of key topics, and a list of important takeaways. \
-  # Format the reponse as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
-  # 'Summary', 'Topics', and 'Takeaways' as the keys. \
-  # \n\n \
-  # Essay:\n```{text}```"""
-
   human_template = """\
   Given the essay delimited in triple backticks, generate and extract important \
-  information such as the title, speaker, summary, a list of key topics, and a list of important takeaways for each topic. \
+  information such as the title, speaker, summary, a list of key topics, \
+  and a list of important takeaways for each topic. \
   Format the reponse as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
   'Summary', and 'Topics' as the keys and each topic will be keys for list of takeaways. \
-  \n\n \
-  Essay:\n```{text}```"""
+  Example of JSON output: \n \
+  {
+  "Title": "Title of the presentation",
+  "Speaker": "John Smith",
+  "Summary": "summary of the presentation",
+  "Topics": [
+    {
+      "Topic": "topic 1",
+      "Takeaways": [
+        "takeaway 1",
+        "takeaway 2",
+        "takeaway 3"
+      ]
+    },
+    {
+      "Topic": "topic 2",
+      "Takeaways": [
+        "takeaway 1",
+        "takeaway 2",
+        "takeaway 3"
+      ]
+    },
+    {
+      "Topic": "topic 3",
+      "Takeaways": [
+        "takeaway 1",
+        "takeaway 2",
+        "takeaway 3"
+      ]
+    },
+    {
+      "Topic": "topic 4",
+      "Takeaways": [
+        "takeaway 1",
+        "takeaway 2",
+        "takeaway 3"
+      ]
+    }
+  ]
+}
+\n\n \
+Essay:\n```{text}```"""
   
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
