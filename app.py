@@ -100,20 +100,20 @@ with st.form('myform', clear_on_submit=True):
 # set openai api key
 openai.api_key = OPENAI_API_KEY
 
-from langchain.chat_models import ChatOpenAI
-
-chat = ChatOpenAI(
-    openai_api_key=OPENAI_API_KEY ,
-    temperature=0,
-    model='gpt-3.5-turbo')
-
-chat16k = ChatOpenAI(
-    openai_api_key=OPENAI_API_KEY ,
-    temperature=0,
-    model='gpt-3.5-turbo-16k')
-
 # if uploaded_files != []:
 if submitted and uploaded_file is not None:
+
+    from langchain.chat_models import ChatOpenAI
+
+    chat = ChatOpenAI(
+        openai_api_key=OPENAI_API_KEY ,
+        temperature=0,
+        model='gpt-3.5-turbo')
+
+    chat16k = ChatOpenAI(
+        openai_api_key=OPENAI_API_KEY ,
+        temperature=0,
+        model='gpt-3.5-turbo-16k')
 
     save_directory = r"./tempsave/"
 
