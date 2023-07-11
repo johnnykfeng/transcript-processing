@@ -1,0 +1,35 @@
+# Evaluating and Augmenting Language Models: A Comprehensive Overview
+
+In this comprehensive overview, Suhas Pai addresses the challenges of evaluating and augmenting language models (LLMs) and provides insights into how to choose the most suitable LLM for specific tasks. He discusses different evaluation approaches, the availability of open source LLMs, and the limitations and capabilities of language models. Pai emphasizes the need for robust evaluation methods and the importance of considering multiple criteria when choosing an LLM.
+
+## Evaluation Challenges
+
+Pai begins by discussing the challenges of evaluating LLMs. He mentions the comprehensive evaluation conducted by Illiter AI, which covers various tasks related to ethics, biology, chemistry, and more. However, he highlights the need for robust evaluation methods to ensure that the test set is not contaminated by the training set. He also mentions the Open LLM Leaderboard by Hugging Face, which provides rankings based on specific tasks but cautions against relying solely on these rankings.
+
+## Different Evaluation Approaches
+
+Pai explores different evaluation approaches, including the use of Elo ratings, inspired by chess player ratings. This approach involves matching LLMs against each other and having human evaluators choose the better model. The Elo ratings provide a more nuanced understanding of the relative performance of LLMs. Additionally, Pai mentions the Helm evaluation framework, which considers factors such as accuracy, calibration, and robustness. However, he acknowledges that automatic evaluation remains a challenge.
+
+## Open Source LLMs
+
+Pai discusses the availability of open source LLMs and their rankings on the Elo rating scale. He notes that fully open source LLMs are relatively lower on the scale, with GPT-4 being the highest-ranked open source model. This ranking indicates that GPT-4 outperforms most fully open source models. Pai emphasizes the significance of these differences in performance, especially when comparing models with substantial rating gaps.
+
+## Augmentation of LLMs
+
+Pai moves on to discuss the various augmentations of LLMs that have emerged in recent months. He mentions the Base model, which was the original Gpt3 model but lacked production-level application due to the need for prompt engineering. He introduces instruction tuning as a type of augmentation, such as Jack's earnings, which helps the model easily follow human instructions without the need for convoluted prompts. He also mentions long context models and domain task adaptations as other augmentation techniques.
+
+## Fine Tuning and its Limitations
+
+Pai highlights the limitations of fine tuning LLMs. He provides an example from his work in finance, where the model fails to differentiate between business segments and user segments. He explains that adding all the necessary concepts to the prompt is not feasible, leading to a trade-off in performance. He mentions a recent paper that shows the recall of the language model is highest at the beginning and end of the prompt, but it often forgets information in the middle, particularly for decoder models.
+
+## Limitations and Capabilities of Language Models
+
+Pai discusses the limitations and capabilities of language models, specifically focusing on GPT-4. He explains that language models can only process a limited set of instructions or prompts, and preventing models from accessing experimental memory or hallucinating information is an unsolved problem. He suggests that companies will eventually have to use fine-tuning, but they need to divide their problems in a way that allows for the use of both context learning and fine-tuning.
+
+## Practical Use Cases and Evaluation
+
+Pai emphasizes the importance of evaluating language models in practical use cases rather than solely relying on leaderboards. He suggests that companies should invest time in building their own evaluation test bench to assess the models' suitability for specific tasks. He also addresses questions from the audience, explaining the distinction between chat tuning and instruction fine-tuning and why OpenAI does not offer fine-tuning.
+
+## Conclusion
+
+In conclusion, Suhas Pai's presentation provides valuable insights into the challenges of evaluating and augmenting language models. By discussing different evaluation approaches and highlighting the limitations of current methods, Pai encourages a comprehensive and informed decision-making process in the field of language modeling. He emphasizes the need for robust evaluation methods, the importance of considering multiple criteria when choosing an LLM, and the complexities of using long context in language models.

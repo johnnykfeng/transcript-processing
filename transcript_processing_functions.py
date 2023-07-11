@@ -18,15 +18,15 @@ import streamlit as st
 # openai.api_key = OPENAI_API_KEY
 
 #instantiate chat model
-chat = ChatOpenAI(
-    # openai_api_key=OPENAI_API_KEY ,
-    temperature=0,
-    model='gpt-3.5-turbo')
+# chat = ChatOpenAI(
+#     # openai_api_key=OPENAI_API_KEY ,
+#     temperature=0,
+#     model='gpt-3.5-turbo')
 
-chat16k = ChatOpenAI(
-    # openai_api_key=OPENAI_API_KEY ,
-    temperature=0,
-    model='gpt-3.5-turbo-16k')
+# chat16k = ChatOpenAI(
+#     # openai_api_key=OPENAI_API_KEY ,
+#     temperature=0,
+#     model='gpt-3.5-turbo-16k')
 
 import time
 
@@ -89,7 +89,7 @@ def transcript_splitter(raw_transcript, chunk_size=10000, chunk_overlap=200):
   transcript_docs = markdown_splitter.create_documents([raw_transcript])
   return transcript_docs
 
-def transcript2essay(transcript):
+def transcript2essay(transcript, chat_model):
   system_template = "You are a helpful assistant that summarizes a transcript of podcasts or lectures."
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
   # human_template = "Summarize the main points of this presentation's transcript: {transcript}"
@@ -102,48 +102,48 @@ def transcript2essay(transcript):
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  result = chat(chat_prompt.format_prompt(transcript=transcript).to_messages())
+  result = chat_model(chat_prompt.format_prompt(transcript=transcript).to_messages())
   return result.content
 
-def create_essay_parts(transcript_docs):
+def create_essay_parts(transcript_docs, chat_model):
   essay_response=''
   for i, text in enumerate(transcript_docs):
-    essay = transcript2essay(text.page_content)
+    essay = transcript2essay(text.page_content, chat_model)
     essay_response = f'\n\n#Part {i+1}\n'.join([essay_response, essay])
 
   return essay_response
 
-def merge_essays(essays):
-  system_template = """You are a helpful assistant that summarizes and processes large text information."""
+def merge_essays(essays, chat_model):
+  system_template = """You are a helpful assistant that summarizes and \
+    processes large text information."""
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
   human_template = """Consolidate the multiple parts of the text into one \
   coherent essay or article that accurately captures the content of the multiple\
-  parts without losing any information. Make sure to include the speaker's full name and the \
-  names of the people who asked questions and the questions they asked. \
+  parts without losing any information. Make sure to include the speaker's full name \
+  and the questions asked by the audience as well as the response to those questions. \
   The entire text is delimited in triple backticks and the parts are divided by
-  #heading:
+  #heading:\n
   ```{essays}```"""
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  # final_essay = chat(chat_prompt.format_prompt(essays=essays).to_messages())
-  final_essay = chat16k(chat_prompt.format_prompt(essays=essays).to_messages())
+  final_essay = chat_model(chat_prompt.format_prompt(essays=essays).to_messages())
 
   return final_essay.content
 
 # @timer_decorator
-def full_transcript2essay(raw_transcript:str):
+def full_transcript2essay(raw_transcript:str, chat_model):
   transcript_docs = transcript_splitter(raw_transcript)
-  essay_parts = create_essay_parts(transcript_docs)
-  final_essay = merge_essays(essay_parts)
+  essay_parts = create_essay_parts(transcript_docs, chat_model)
+  final_essay = merge_essays(essay_parts, chat_model)
   return final_essay
 
 
 # """# Part 2: Extracting from essay"""
 
 # Extracting from generated essay
-def extract_topics_from_text(text, user_prompt):
+def extract_topics_from_text(text, user_prompt, chat_model):
   system_template = """You are a helpful assistant that preprocesses text, \
                       writings and presentation transcripts"""
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
@@ -154,11 +154,11 @@ def extract_topics_from_text(text, user_prompt):
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  result = chat(chat_prompt.format_prompt(text=text, user_prompt=user_prompt).to_messages())
+  result = chat_model(chat_prompt.format_prompt(text=text, user_prompt=user_prompt).to_messages())
   return result.content
 
 
-def extract_metadata_as_json(essay):
+def extract_metadata_as_json(essay, chat_model):
   system_template = """You are a helpful assistant that preprocesses text, \
                       writings and lecture transcripts"""
   
@@ -214,13 +214,13 @@ def extract_metadata_as_json(essay):
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  result = chat(chat_prompt.format_prompt(text=essay).to_messages())
+  result = chat_model(chat_prompt.format_prompt(text=essay).to_messages())
   metadata_json = json.loads(result.content)
 
   return metadata_json
 
 
-def extract_metadata_as_json_v2(essay):
+def extract_metadata_as_json_v2(essay, chat_model):
 
   system_template = """ Given the essay delimited in triple backticks, generate and extract important \
   information such as the title, speaker, summary, a list of key topics, \
@@ -275,7 +275,7 @@ def extract_metadata_as_json_v2(essay):
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  result = chat(chat_prompt.format_prompt(text=essay).to_messages())
+  result = chat_model(chat_prompt.format_prompt(text=essay).to_messages())
   metadata_json = json.loads(result.content)
 
   return metadata_json
@@ -283,7 +283,7 @@ def extract_metadata_as_json_v2(essay):
 
 # """#Part 3: Experimental"""
 
-def generate_qa(text):
+def generate_qa(text, chat_model):
   system_template = """You are a helpful assistant that preprocesses text, \
                       writings and presentation transcripts in the context of \
                       large-language models and machine learning research"""
@@ -301,11 +301,11 @@ def generate_qa(text):
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  result = chat(chat_prompt.format_prompt(text=text).to_messages())
+  result = chat_model(chat_prompt.format_prompt(text=text).to_messages())
   return result.content
 
 
-def generate_mc_questions(text):
+def generate_mc_questions(text, chat_model):
   system_template = """You are a helpful assistant that preprocesses text, \
                       writings and presentation transcripts in the context of \
                       large-language models and machine learning research"""
@@ -327,7 +327,7 @@ def generate_mc_questions(text):
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
-  result = chat(chat_prompt.format_prompt(text=text).to_messages())
+  result = chat_model(chat_prompt.format_prompt(text=text).to_messages())
   return result.content
 
 def json2rst(metadata, rst_filepath):

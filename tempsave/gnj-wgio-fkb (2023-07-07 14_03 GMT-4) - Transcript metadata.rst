@@ -1,0 +1,44 @@
+
+===================================================================
+Evaluating and Augmenting Language Models: A Comprehensive Overview 
+===================================================================
+*Suhas Pai* 
+
+Summary 
+-------
+Suhas Pai addresses the challenges of evaluating and augmenting language models (LLMs) and provides insights into how to choose the most suitable LLM for specific tasks. He discusses different evaluation approaches, the availability of open source LLMs, and the limitations and capabilities of language models. Pai emphasizes the need for robust evaluation methods and the importance of considering multiple criteria when choosing an LLM. 
+
+Topics: 
+-------
+	Evaluation Challenges 
+		* Robust evaluation methods are needed to ensure that the test set is not contaminated by the training set. 
+		* Open LLM Leaderboard rankings should not be relied upon solely when choosing an LLM. 
+	Different Evaluation Approaches 
+		* Elo ratings, inspired by chess player ratings, provide a more nuanced understanding of the relative performance of LLMs. 
+		* The Helm evaluation framework considers factors such as accuracy, calibration, and robustness. 
+		* Automatic evaluation of LLMs remains a challenge. 
+	Open Source LLMs 
+		* Fully open source LLMs are relatively lower on the Elo rating scale. 
+		* GPT-4 is the highest-ranked open source model, indicating superior performance compared to most fully open source models. 
+		* Performance differences between LLMs with substantial rating gaps are significant. 
+	Augmentation of LLMs 
+		* Base model and instruction tuning are types of LLM augmentation. 
+		* Long context models and domain task adaptations are other augmentation techniques. 
+	Fine Tuning and its Limitations 
+		* Fine tuning LLMs has limitations, such as the model's inability to differentiate between certain concepts. 
+		* Adding all necessary concepts to the prompt is not feasible and can impact performance. 
+		* Recall of the language model is highest at the beginning and end of the prompt, but it often forgets information in the middle. 
+	Limitations and Capabilities of Language Models 
+		* Language models can only process a limited set of instructions or prompts. 
+		* Preventing models from accessing experimental memory or hallucinating information is an unsolved problem. 
+		* Fine-tuning and context learning should be used together to address limitations. 
+	Practical Use Cases and Evaluation 
+		* Evaluating language models in practical use cases is important. 
+		* Companies should build their own evaluation test bench to assess model suitability. 
+		* Chat tuning and instruction fine-tuning are distinct concepts. 
+		* OpenAI does not offer fine-tuning. 
+	Conclusion 
+		* Robust evaluation methods are necessary in the field of language modeling. 
+		* Multiple criteria should be considered when choosing an LLM. 
+		* Using long context in language models adds complexity. 
+

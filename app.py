@@ -92,13 +92,25 @@ if uploaded_file is not None:
 
 
 with st.form('myform', clear_on_submit=True):
-    openai_api_key = st.text_input('Enter your OpenAI API Key', type='password', 
+    OPENAI_API_KEY = st.text_input('Enter your OpenAI API Key', type='password', 
                                    disabled=False)
     submitted = st.form_submit_button('Click here to Start processing', 
                                       disabled=not uploaded_file)
 
 # set openai api key
-openai.api_key = openai_api_key
+openai.api_key = OPENAI_API_KEY
+
+from langchain.chat_models import ChatOpenAI
+
+chat = ChatOpenAI(
+    openai_api_key=OPENAI_API_KEY ,
+    temperature=0,
+    model='gpt-3.5-turbo')
+
+chat16k = ChatOpenAI(
+    openai_api_key=OPENAI_API_KEY ,
+    temperature=0,
+    model='gpt-3.5-turbo-16k')
 
 # if uploaded_files != []:
 if submitted and uploaded_file is not None:
@@ -118,7 +130,7 @@ if submitted and uploaded_file is not None:
     with st.spinner("Generating summary..."):
     # st.caption("Generating summary...") 
         t1 = time.time()
-        summary = full_transcript2essay(transcript_text)
+        summary = full_transcript2essay(transcript_text, chat_model=chat)
         t2 = time.time() - t1
         st.caption(f"Run time for summarization: **{t2:.2f}** seconds")
     st.success('Success!', icon="🎉")
@@ -139,7 +151,7 @@ if submitted and uploaded_file is not None:
         max_retries = 3
         for i in range(max_retries):
             try:
-                metadata = extract_metadata_as_json_v2(summary)
+                metadata = extract_metadata_as_json_v2(summary, chat_model=chat)
                 break
             except Exception as e:
                 st.error(f"Attempt {i+1} failed with error: {e}")
