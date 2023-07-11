@@ -3,5 +3,6 @@ langchain
 openai
 tiktoken
 transformers
+python-docx
 pandas
 numpy
