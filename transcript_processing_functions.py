@@ -1,5 +1,4 @@
 from langchain.chat_models import ChatOpenAI
-from langchain import PromptTemplate, LLMChain
 
 from langchain.text_splitter import MarkdownTextSplitter
 from langchain.prompts.chat import (
@@ -8,23 +7,24 @@ from langchain.prompts.chat import (
     AIMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
-from langchain.schema import (
-    AIMessage,
-    HumanMessage,
-    SystemMessage
-)
 
 import json
+import os
+import openai
+import streamlit as st
 
-import api_keys
+# disable api key for the streamlit app
+# OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+# openai.api_key = OPENAI_API_KEY
 
 #instantiate chat model
 chat = ChatOpenAI(
-    # openai_api_key='Get your own API' ,
+    # openai_api_key=OPENAI_API_KEY ,
     temperature=0,
     model='gpt-3.5-turbo')
 
 chat16k = ChatOpenAI(
+    # openai_api_key=OPENAI_API_KEY ,
     temperature=0,
     model='gpt-3.5-turbo-16k')
 
@@ -61,6 +61,12 @@ def extract_text_from_docx(file_path):
         text.append(paragraph.text)
     return '\n'.join(text)
 
+def extract_text_from_plaintext(file_path):
+    with open(file_path, 'r') as file:
+        data = file.read()
+    return data
+
+
 
 def transcript_token_size(raw_transcript, verbose = True):
   char_len = len(raw_transcript)
@@ -84,7 +90,7 @@ def transcript_splitter(raw_transcript, chunk_size=10000, chunk_overlap=200):
   return transcript_docs
 
 def transcript2essay(transcript):
-  system_template = "You are a helpful assistant that summarizes the main points of a presentation about large-Language model and machine learning research"
+  system_template = "You are a helpful assistant that summarizes a transcript of podcasts or lectures."
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
   # human_template = "Summarize the main points of this presentation's transcript: {transcript}"
   human_template = """Rewrite the contents and information of the presentation into a well written essay.\
@@ -108,8 +114,7 @@ def create_essay_parts(transcript_docs):
   return essay_response
 
 def merge_essays(essays):
-  system_template = """You are a helpful assistant that preprocesses text, \
-                      writings and presentation transcripts in the context of large-Language model and machine learning research"""
+  system_template = """You are a helpful assistant that summarizes and processes large text information."""
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
   human_template = """Consolidate the multiple parts of the text into one \
@@ -140,8 +145,7 @@ def full_transcript2essay(raw_transcript:str):
 # Extracting from generated essay
 def extract_topics_from_text(text, user_prompt):
   system_template = """You are a helpful assistant that preprocesses text, \
-                      writings and presentation transcripts in the context of \
-                      large-language models and machine learning research"""
+                      writings and presentation transcripts"""
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
   human_template = """{user_prompt}
@@ -156,8 +160,7 @@ def extract_topics_from_text(text, user_prompt):
 
 def extract_metadata_as_json(essay):
   system_template = """You are a helpful assistant that preprocesses text, \
-                      writings and presentation transcripts in the context of \
-                      large-language models and machine learning research"""
+                      writings and lecture transcripts"""
   
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 

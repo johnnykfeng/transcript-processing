@@ -4,3 +4,7 @@ __pycache__/
 api_keys.py
 saves/
 raw_transcripts/
+.streamlit/
+test.ipynb
+transcript_summaries.zip
+```

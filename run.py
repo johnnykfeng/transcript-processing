@@ -10,10 +10,10 @@ import os
 import json
 import re
 
+
 def is_docx_file(file_path):
     extension = os.path.splitext(file_path)[1]
     return extension.lower() == '.docx'
-
 
 # directory = r"raw_transcripts\drive-download-20230630T183317Z-001"
 directory = r"raw_transcripts\drive-download-20230709T172414Z-001"
