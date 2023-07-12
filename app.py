@@ -7,6 +7,15 @@ import json
 import time
 import openai
 
+from st_pages import Page, show_pages, add_page_title
+
+show_pages(
+    [
+        Page("app.py", "App", "📖"),
+        Page("pages/README.py", "README", "📜"),
+    ]
+)
+
 from transcript_processing_functions import \
                         full_transcript2essay, \
                         json2rst, \
@@ -45,8 +54,8 @@ def zip_all_files_in_folder(folder_path, zip_name):
 
 print("++ streamlit app rerun ++")
 
-st.title("LLM Transcript Processor")
-description = st.expander("**What is this app for?**", expanded=False)
+st.title("Transcript Summarizer 📑")
+description = st.expander("**🙋 What is this app for❓**", expanded=False)
 
 description.write("""This app is for summarizing transcripts into structured format.
 The process takes about 2-5 minutes per file, depending on the length 
@@ -76,7 +85,7 @@ if uploaded_file is not None:
         transcript_text = [line.decode('utf-8') for line in lines]
         transcript_text = '\n'.join(transcript_text)
 
-
+## -- for debugging -- ##
 # st.write(type(uploaded_file))
 # # st.write(type(transcript_text))
 # print(type(uploaded_file))
@@ -95,7 +104,7 @@ with st.form('myform', clear_on_submit=True):
     OPENAI_API_KEY = st.text_input('Enter your OpenAI API Key', type='password', 
                                    disabled=False)
     submitted = st.form_submit_button('Click here to Start processing', 
-                                      disabled=not uploaded_file)
+                                      disabled=not(uploaded_file) )
 
 # set openai api key
 openai.api_key = OPENAI_API_KEY
@@ -142,7 +151,7 @@ if submitted and uploaded_file is not None:
     with open(essay_filepath, 'w') as file:
         file.write(summary)
 
-    essay_expander = st.expander("See full summary")
+    essay_expander = st.expander("**See full summary**")
     essay_expander.write(summary)
 
     with st.spinner("Generating metadata..."):

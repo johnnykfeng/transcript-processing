@@ -304,31 +304,43 @@ def generate_qa(text, chat_model):
   result = chat_model(chat_prompt.format_prompt(text=text).to_messages())
   return result.content
 
-
 def generate_mc_questions(text, chat_model):
-  system_template = """You are a helpful assistant that preprocesses text, \
-                      writings and presentation transcripts in the context of \
-                      large-language models and machine learning research"""
+  system_template = """Given the essay delimited in triple backticks, \
+  generate 5 multiple choice questions based on the contents of the essay. \
+  The goal of the these questions is to  quiz the audience after who have \
+  read or listen to the essay. Format the quiz as follows: 
+  Q. question... \n \
+  a. choice 1 \n \
+  b. choice 2 \n \
+  c. choice 3 \n \
+  d. choice 4 \n \
+  """
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
 
-  human_template = """Given the essay delimited in triple backticks, \
-  generate 5 multiple choice questions\
-  based on the contents of the essay. The goal of the these questions is to \
-  quiz the audience after who have read or listen to the essay. Format the \
-  quiz as follows.
-  Q. question...
-  a. choice 1
-  b. choice 2
-  c. choice 3
-  d. choice 4
-  Then provide the answers to each question and explain each choice.
-  The essay is delimited in triple backticks:
-  ```{text}```"""
+  human_template = """Essay: \n```{text}```"""
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
   result = chat_model(chat_prompt.format_prompt(text=text).to_messages())
   return result.content
+
+def generate_answers(text, chat_model):
+  system_template = """Given the multiple choice questions and the \
+  essay they were generated from, generate the answers to the questions. \
+  Make sure the answers are in the same order as the questions and provide \
+  an explanation for each answer based on the contents of the essay. \
+  Format the answers as follows: \n \
+  
+  """
+  system_prompt = SystemMessagePromptTemplate.from_template(system_template)
+
+  human_template = """Essay: \n```{text}```"""
+  human_prompt = HumanMessagePromptTemplate.from_template(human_template)
+  chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
+
+  result = chat_model(chat_prompt.format_prompt(text=text).to_messages())
+  return result.content
+
 
 def json2rst(metadata, rst_filepath):
   if not isinstance(metadata, dict):

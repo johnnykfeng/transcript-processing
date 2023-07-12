@@ -271,7 +271,6 @@ def lambda_handler(event,context):
     
      #Retrieve the source and destination bucket names from the event
     source_bucket = event['Records'][0]['s3']['bucket']['name']
-
     
     # Retrieve the key (filename) of the object that triggered the Lambda function
     source_key = event['Records'][0]['s3']['object']['key']
