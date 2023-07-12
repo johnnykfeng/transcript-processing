@@ -10,3 +10,5 @@ transcript_summaries.zip
 init_requirements.txt
 pipfreeze_requirements.txt
 ignore/
+tempsave/
+tempsave

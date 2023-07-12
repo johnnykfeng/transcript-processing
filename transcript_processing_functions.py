@@ -12,6 +12,7 @@ import json
 import os
 import openai
 import streamlit as st
+import time
 
 # disable api key for the streamlit app
 # OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
@@ -133,10 +134,20 @@ def merge_essays(essays, chat_model):
   return final_essay.content
 
 # @timer_decorator
-def full_transcript2essay(raw_transcript:str, chat_model):
+def full_transcript2essay(raw_transcript:str, chat_model, verbose=True):
+  print('Chunking transcript...')
   transcript_docs = transcript_splitter(raw_transcript)
+  t1 = time.time()
+  print('Creating essay parts...')
   essay_parts = create_essay_parts(transcript_docs, chat_model)
+  t2 = time.time()-t1
+  print('Merging essay parts...')
+  t1 = time.time()
   final_essay = merge_essays(essay_parts, chat_model)
+  t3 = time.time()-t1
+  if verbose:
+    print(f'Created essay parts in {t2:.2f} seconds')
+    print(f'Merged essay parts in {t3:.2f} seconds')
   return final_essay
 
 

@@ -68,7 +68,6 @@ description.markdown("""*Sometimes the metadata extraction process fails
             running the process again.*""")
 
 
-
 uploaded_file = st.file_uploader("Only accept docx, txt, and md.", 
                                   type = ["docx","txt","md"], 
                                   accept_multiple_files=False)
@@ -103,14 +102,20 @@ if uploaded_file is not None:
 with st.form('myform', clear_on_submit=True):
     OPENAI_API_KEY = st.text_input('Enter your OpenAI API Key', type='password', 
                                    disabled=False)
-    submitted = st.form_submit_button('Click here to Start processing', 
-                                      disabled=not(uploaded_file) )
+    submitted = st.form_submit_button('Submit your key', 
+                                      disabled=False )
+
+    if submitted:
+        st.caption(f"OPENAI_API_KEY: {OPENAI_API_KEY}")
 
 # set openai api key
 openai.api_key = OPENAI_API_KEY
+if OPENAI_API_KEY == "":
+    st.warning("Please enter your OpenAI API Key")
 
 # if uploaded_files != []:
-if submitted and uploaded_file is not None:
+if st.button(label="Start Processing", 
+             disabled=not (uploaded_file and submitted and OPENAI_API_KEY != "")):
 
     from langchain.chat_models import ChatOpenAI
 
@@ -139,7 +144,11 @@ if submitted and uploaded_file is not None:
     with st.spinner("Generating summary..."):
     # st.caption("Generating summary...") 
         t1 = time.time()
-        summary = full_transcript2essay(transcript_text, chat_model=chat)
+        try:
+            summary = full_transcript2essay(transcript_text, chat_model=chat)
+        except Exception as e:
+            st.error(e)
+            st.stop()
         t2 = time.time() - t1
         st.caption(f"Run time for summarization: **{t2:.2f}** seconds")
     st.success('Success!', icon="🎉")
