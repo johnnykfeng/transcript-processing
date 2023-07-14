@@ -21,7 +21,7 @@ from transcript_processing_functions import \
                         json2rst, \
                         extract_text_from_docx, \
                         extract_text_from_plaintext, \
-                        extract_metadata_as_json_v2, \
+                        extract_metadata_as_json, \
                         num_tokens_from_string
 
 # auxiliary functions
@@ -102,7 +102,8 @@ if uploaded_file is not None:
 with st.form('myform', clear_on_submit=True):
     OPENAI_API_KEY = st.text_input('Enter your OpenAI API Key', type='password', 
                                    disabled=False)
-    submitted = st.form_submit_button('Submit your key', 
+    submitted = st.form_submit_button('Submit your key',
+                                      help = "Click here to submit your API key.",  
                                       disabled=False )
 
     if submitted:
@@ -114,7 +115,8 @@ if OPENAI_API_KEY == "":
     st.warning("Please enter your OpenAI API Key")
 
 # if uploaded_files != []:
-if st.button(label="Start Processing", 
+if st.button(label="▶️ Start Processing",
+             help="Disabled if no file is uploaded or no API key is entered.", 
              disabled=not (uploaded_file and submitted and OPENAI_API_KEY != "")):
 
     from langchain.chat_models import ChatOpenAI
@@ -169,7 +171,7 @@ if st.button(label="Start Processing",
         max_retries = 3
         for i in range(max_retries):
             try:
-                metadata = extract_metadata_as_json_v2(summary, chat_model=chat)
+                metadata = extract_metadata_as_json(summary, chat_model=chat)
                 break
             except Exception as e:
                 st.error(f"Attempt {i+1} failed with error: {e}")

@@ -169,69 +169,8 @@ def extract_topics_from_text(text, user_prompt, chat_model):
   return result.content
 
 
+
 def extract_metadata_as_json(essay, chat_model):
-  system_template = """You are a helpful assistant that preprocesses text, \
-                      writings and lecture transcripts"""
-  
-  system_prompt = SystemMessagePromptTemplate.from_template(system_template)
-
-  human_template = """\
-  Given the essay delimited in triple backticks, generate and extract important \
-  information such as the title, speaker, summary, a list of key topics, \
-  and a list of important takeaways for each topic. \
-  Format the response as a JSON object, with the keys 'Title', 'Topics', 'Speaker', \
-  'Summary', and 'Topics' as the keys and each topic will be keys for list of takeaways. \
-  Example of JSON output: \n \
- {\
-  'Title': 'Title of the presentation',\
-  'Speaker': 'John Smith',\
-  'Summary': 'summary of the presentation',\
-  'Topics': [\
-  {\
-  'Topic': 'topic 1',\
-  'Takeaways': [\
-  'takeaway 1',\
-  'takeaway 2',\
-  'takeaway 3'\
-  ]\
-  },\
-  {\
-  'Topic': 'topic 2',\
-  'Takeaways': [\
-  'takeaway 1',\
-  'takeaway 2',\
-  'takeaway 3'\
-  ]\
-  },\
-  {\
-  'Topic': 'topic 3',\
-  'Takeaways': [\
-  'takeaway 1',\
-  'takeaway 2',\
-  'takeaway 3'\
-  ]\
-  },\
-  {\
-  'Topic': 'topic 4',\
-  'Takeaways': [\
-  'takeaway 1',\
-  'takeaway 2',\
-  'takeaway 3'\
-  ]}]}\
-  \n\n \
-  Essay:\n```{text}```\
-  """
-  
-  human_prompt = HumanMessagePromptTemplate.from_template(human_template)
-  chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
-
-  result = chat_model(chat_prompt.format_prompt(text=essay).to_messages())
-  metadata_json = json.loads(result.content)
-
-  return metadata_json
-
-
-def extract_metadata_as_json_v2(essay, chat_model):
 
   system_template = """ Given the essay delimited in triple backticks, generate and extract important \
   information such as the title, speaker, summary, a list of key topics, \
