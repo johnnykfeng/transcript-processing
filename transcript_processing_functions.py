@@ -226,8 +226,11 @@ def extract_metadata_as_json(essay, chat_model):
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
   result = chat_model(chat_prompt.format_prompt(text=essay).to_messages())
-  metadata_json = json.loads(result.content)
-
+  try:
+    metadata_json = json.loads(result.content)
+  except Exception as e:
+    print(e)
+    metadata_json = result.content  
   return metadata_json
 
 

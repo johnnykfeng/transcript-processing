@@ -49,7 +49,7 @@ def transcript_splitter(raw_transcript, chunk_size=10000, chunk_overlap=200):
   return transcript_docs
 
 
-def transcript2essay(transcript, chat_model):
+def transcript2essay(transcript, chat_model=chat):
   system_template = "You are a helpful assistant that summarizes a transcript of podcasts or lectures."
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
   # human_template = "Summarize the main points of this presentation's transcript: {transcript}"
@@ -74,7 +74,7 @@ def create_essay_parts(transcript_docs):
   return essay_response
 
 
-def merge_essays(essays, chat_model):
+def merge_essays(essays, chat_model=chat):
   system_template = """You are a helpful assistant that summarizes and \
     processes large text information."""
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
@@ -95,16 +95,16 @@ def merge_essays(essays, chat_model):
 
 
 # @timer_decorator
-def full_transcript2essay(raw_transcript:str, chat_model, verbose=True):
+def full_transcript2essay(raw_transcript:str, chat_model=chat, verbose=True):
   print('Chunking transcript...')
   transcript_docs = transcript_splitter(raw_transcript)
   t1 = time.time()
   print('Creating essay parts...')
-  essay_parts = create_essay_parts(transcript_docs, chat_model)
+  essay_parts = create_essay_parts(transcript_docs, chat_model=chat)
   t2 = time.time()-t1
   print('Merging essay parts...')
   t1 = time.time()
-  final_essay = merge_essays(essay_parts, chat_model)
+  final_essay = merge_essays(essay_parts, chat_model=chat)
   t3 = time.time()-t1
   if verbose:
     print(f'Created essay parts in {t2:.2f} seconds')
@@ -114,7 +114,7 @@ def full_transcript2essay(raw_transcript:str, chat_model, verbose=True):
 
 # """# Part 2: Extracting from essay"""
 
-def extract_metadata_as_json(essay, chat_model):
+def extract_metadata_as_json(essay, chat_model=chat):
 
   system_template = """ Given the essay delimited in triple backticks, generate and extract important \
   information such as the title, speaker, summary, a list of key topics, \
@@ -170,8 +170,11 @@ def extract_metadata_as_json(essay, chat_model):
   chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
 
   result = chat_model(chat_prompt.format_prompt(text=essay).to_messages())
-  metadata_json = json.loads(result.content)
-
+  try:
+    metadata_json = json.loads(result.content)
+  except Exception as e:
+    print(e)
+    metadata_json = result.content  
   return metadata_json
 
 def json2rst(metadata, rst_filepath):
@@ -235,22 +238,11 @@ def lambda_handler(event,context):
         raw_transcript = response['Body'].read().decode('utf-8', errors='replace')
         
         # takes about 2-3 minutes to run
-    final_essay = full_transcript2essay(raw_transcript)
-
-    essay_filepath = r'/tmp/test_essay.txt'
-        # save the final essay to a file
-    with open(essay_filepath, 'w') as file:
-      file.write(final_essay)
-
-
-    # load essay from file
-    essay_filepath = r'/tmp/test_essay.txt'
-    with open(essay_filepath, 'r') as file:
-        essay = file.read()
+    summary= full_transcript2essay(raw_transcript)
 
     # 17 seconds to run
     print('Extracting metadata...')
-    metadata = extract_metadata_as_json(essay)
+    metadata = extract_metadata_as_json(summary, chat_model=chat)
 
     # save metadata to file
     metadata_filepath = r'/tmp/test_metadata.json'
@@ -321,6 +313,7 @@ def lambda_handler_bkp(event, context):
     
     print("Extracting metadata completed")
     #print(metadata)
+    
     
     
      # Convert the metadata dictionary to JSON string
