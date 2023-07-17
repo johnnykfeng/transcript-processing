@@ -20,8 +20,9 @@ if files:
         summary = file.read()
         # print(summary[:200])
 else:
+    st.error("No summary file found. Please run the app from the beginning.")
     print("No file ending with 'summary.txt' found in the specified directory.")
-
+    st.stop() # does this work?
 
 with st.sidebar:
     st.header("Stored Variables")
