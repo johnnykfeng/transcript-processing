@@ -24,14 +24,20 @@ else:
     print("No file ending with 'summary.txt' found in the specified directory.")
     st.stop() # does this work?
 
+OPENAI_API_KEY = st.session_state['api_key']
 with st.sidebar:
     st.header("Stored Variables")
+    with st.expander("Stored Api key "):
+        st.write(f"{OPENAI_API_KEY[:5]}... {OPENAI_API_KEY[-5:]}")
     with st.expander("See summary"):
         st.write(summary)
+    
 
 from langchain.chat_models import ChatOpenAI
 from transcript_processing_functions import mc_question_json
-OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+# OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+
+
 
 chat = ChatOpenAI(
     openai_api_key=OPENAI_API_KEY,
@@ -165,19 +171,21 @@ def prev_question():
     # Move to the previous question in the questions list
     if st.session_state.current_question > 1:
         st.session_state.current_question -= 1
-        st.session_state.explanation = None
+        # st.session_state.explanation = None
 
 # Create a 3-column layout for the Prev/Next buttons and the question display
 col1, col2, col3 = st.columns([1, 4, 1])
 
 # Add a Prev button to the left column that goes to the previous question
 with col1:
-    if col1.button("Prev"):
+    # st.subheader("⬅️")
+    if col1.button("⬅️ Prev"):
         prev_question()
 
 # Add a Next button to the right column that goes to the next questionG
 with col3:
-    if col3.button("Next"):
+    # st.subheader("➡️")
+    if col3.button("Next ➡️"):
         next_question()
 
 # Display the actual quiz question
