@@ -1,5 +1,7 @@
-import streamlit as st
+# lot of code was taken from this source, thanks to the author
+# https://dev.to/debakarroy/how-to-build-a-personalized-unlimited-quiz-app-in-minutes-chatgpt-api-edition-do1
 
+import streamlit as st
 from PIL import Image
 import glob
 import os
@@ -10,7 +12,7 @@ directory = r'./tempsave/'
 
 # find all files in the directory that end with 'summary.txt'
 files = glob.glob(os.path.join(directory, '*summary.txt'))
-print(files)
+print("checking for summary.txt files...")
 # if there's at least one such file
 if files:
     # open the first file that matches
@@ -21,6 +23,10 @@ else:
     print("No file ending with 'summary.txt' found in the specified directory.")
 
 
+with st.sidebar:
+    st.header("Stored Variables")
+    with st.expander("See summary"):
+        st.write(summary)
 
 from langchain.chat_models import ChatOpenAI
 from transcript_processing_functions import mc_question_json
@@ -42,38 +48,6 @@ n_int = int(n_input)
 def generate_questions(summary, _chat, n_int):
     return mc_question_json(summary, chat_model=_chat, n=n_int)
 
-# if st.button("Create Quiz"):    
-    # with st.spinner(f"Generating {n_int} questions from summary..."):
-    # st.caption("LLM generating quiz from summary...")
-    # results = generate_questions(summary, chat, n_int)
-
-    # st.title('Quiz')    
-    
-    # user_answers = []
-    # for question in results['questions']:
-    #     st.write(question['question'])
-    #     options = question['options']
-    #     random.shuffle(options)
-    #     user_answer = st.radio('Select an answer', 
-    #                         options)
-                            
-    #     user_answers.append(user_answer)
-    #     if user_answer == question['correct_answer']:
-    #         st.write('Correct!')
-    #         st.write('Answer: ' + question['correct_answer'])
-    #         st.write('Explanation: ' + question['explanation'])
-    #     else:
-    #         st.write('Incorrect!')
-            
-    #     st.write('---')
-
-        # list of fixes
-        # 1. find a way to make app not rerun after every selection
-        # 2. Add an api key or "create quiz" starting button
-        # 3. also add an input box for user to add number of question
-
-        # Initialize session state variables if they don't exist yet
-
 # maps integers to letters for keeping track of answers
 int2letter = {0:"A", 1:"B", 2:"C", 3:"D"}
 letter2int = {"A":0, "B":1, "C":2, "D":3}
@@ -84,15 +58,19 @@ if "current_question" not in st.session_state:
     st.session_state.right_answers = 0 # count of right answers
     st.session_state.wrong_answers = 0 # count of wrong answers
 
+def reset_answers():
+    st.session_state.answers = {} 
+    st.session_state.right_answers = 0 # count of right answers
+    st.session_state.wrong_answers = 0 # count of wrong answers
+    st.session_state.current_question = 1 # keeps track of current question number
 
-results = generate_questions(summary, chat, n_int)
-
+questions_json = generate_questions(summary, chat, n_int)
 
 def display_question():
     # Handle first case
     if len(st.session_state.questions) == 0:
         try:
-            first_question = results['questions'][0]
+            first_question = questions_json['questions'][0]
         except Exception as e:
             st.error(e)
             return
@@ -105,15 +83,16 @@ def display_question():
     question = st.session_state.questions[st.session_state.current_question-1]
 
     # Display the question prompt
-    st.write(f"{st.session_state.current_question}. {question['question']}")
+    st.header(f"{st.session_state.current_question}. {question['question']}")
 
-    # Use an empty placeholder to display the radio button options
-    options = st.empty()
+    # Use an empty placeholder to display the radio button question_container
+    question_container = st.empty()
 
-    # Display the radio button options and wait for the user to select an answer
-    user_answer = options.radio("Your answer:", 
-                                question["options"], 
-                                key=st.session_state.current_question)
+    # Display the radio button question_container and wait for the user to select an answer
+    
+    user_answer = question_container.radio("Please select an answer:", 
+                                            question["options"],
+                                            key=st.session_state.current_question)
 
     # Display the submit button and disable it if necessary
     submit_button = st.button("Submit", disabled=submit_button_disabled)
@@ -121,7 +100,7 @@ def display_question():
     # If the user has already answered this question, display their previous answer
     if st.session_state.current_question in st.session_state.answers:
         user_choice = st.session_state.answers[st.session_state.current_question]
-        options.radio(
+        question_container.radio(
             "Your answer:",
             question["options"],
             key=float(st.session_state.current_question),
@@ -129,28 +108,36 @@ def display_question():
         )
 
     answer_index = question["options"].index(user_answer)
-    st.write(int2letter[answer_index])
-    # If the user clicks the submit button, check their answer and show the explanation
-    if submit_button:
-        # Record the user's answer in the session state
-        st.session_state.answers[st.session_state.current_question] = int2letter[answer_index]
-        st.caption(f"You submitted choice {int2letter[answer_index]}")
+    def count_answer():
+        if user_answer == question["correct_answer"]:
+            st.session_state.right_answers += 1
+        else:
+            st.session_state.wrong_answers += 1
 
+    def show_answer():
         # Check if the user's answer is correct and update the score
         if user_answer == question["correct_answer"]:
             st.write("Correct!")
-            st.session_state.right_answers += 1
         else:
             st.write(f"Sorry, the correct answer was {question['correct_answer']}.")
-            st.session_state.wrong_answers += 1
 
         # Show an expander with the explanation of the correct answer
         with st.expander("Explanation"):
             st.write(question["explanation"])
 
+    # If the user clicks the submit button, check their answer and show the explanation
+    if submit_button:
+        # Record the user's answer in the session state
+        st.session_state.answers[st.session_state.current_question] = int2letter[answer_index]
+        st.caption(f"You submitted choice {int2letter[answer_index]}")
+        count_answer()
+        show_answer()
+
+    elif submit_button_disabled:
+        show_answer()
+
     # Display the current score
-    st.write(f"Right answers: {st.session_state.right_answers}")
-    st.write(f"Wrong answers: {st.session_state.wrong_answers}")
+
 
     # Define a function to go to the next question
 def next_question():
@@ -164,7 +151,7 @@ def next_question():
     # If we've reached the end of the questions list, get a new question
     if st.session_state.current_question > len(st.session_state.questions) - 1:
         try:
-            next_question = results['questions'][st.session_state.current_question-1]
+            next_question = questions_json['questions'][st.session_state.current_question-1]
         except Exception as e:
             st.error(e)
             st.session_state.current_question -= 1
@@ -172,9 +159,6 @@ def next_question():
         st.session_state.questions.append(next_question)
         # st.experimental_rerun()
         
-
-
-
 # Define a function to go to the previous question
 def prev_question():
     # Move to the previous question in the questions list
@@ -182,16 +166,15 @@ def prev_question():
         st.session_state.current_question -= 1
         st.session_state.explanation = None
 
-
 # Create a 3-column layout for the Prev/Next buttons and the question display
-col1, col2, col3 = st.columns([1, 6, 1])
+col1, col2, col3 = st.columns([1, 4, 1])
 
 # Add a Prev button to the left column that goes to the previous question
 with col1:
     if col1.button("Prev"):
         prev_question()
 
-# Add a Next button to the right column that goes to the next question
+# Add a Next button to the right column that goes to the next questionG
 with col3:
     if col3.button("Next"):
         next_question()
@@ -200,14 +183,16 @@ with col3:
 with col2:
     display_question()
     
-
 with st.sidebar:
-    with st.expander("See summary"):
-        st.write(summary)
-    # summary_expander = st.expander("See summary")
-    # st.write("this is sidebar")
-    with st.expander("Streamlit session state"):
-        st.write(f"Question #:")
-        st.write(st.session_state.current_question)
-        st.caption(f"Submitted answers: {st.session_state.answers}")
+    with st.expander("Questions JSON"):
+        st.json(questions_json)
+    with st.expander(f"Submitted answers"):
         st.write(st.session_state.answers)
+
+    st.success(f"Right answers: {st.session_state.right_answers}")
+    st.error(f"Wrong answers: {st.session_state.wrong_answers}")
+
+if st.sidebar.button("🔄 Reset quiz"):
+    reset_answers()
+    st.experimental_rerun()
+    

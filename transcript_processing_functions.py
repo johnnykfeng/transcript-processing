@@ -329,17 +329,19 @@ def mc_question_json(text, chat_model, n=5):
   system_template = """Given the corpus of text, \
   generate {n} multiple choice questions\
   based on the contents of the text. The goal of the these questions is to \
-  quiz the audience after who have read or listen to the essay. \
-  Format the questions in JSON as follows, make sure to use double quotes: \
+  quiz the audience after who have read the text. Make sure to randomize \
+  the order of the answers for each question and evenly distribute the correct \
+  answer across the options. Each question should be different and not repeated. \
+  Format the questions in JSON as follows, make sure to use double quotes:\n \
   {{\
     "questions": [\
       {{\
         "question": "Who did X?",\
         "options": [\
-          "A) Answer 1",\
-          "B) Answer 2",\
-          "C) Answer 3",\
-          "D) Answer 4"\
+         "A) Answer 1",\
+         "B) Answer 2",\
+         "C) Answer 3",\
+         "D) Answer 4"
         ],\
         "correct_answer": "C) Answer 3", \
         "explanation": "Explanation of the correct answer" \
@@ -348,9 +350,45 @@ def mc_question_json(text, chat_model, n=5):
     ]\
   }}
   """
-
   system_prompt = SystemMessagePromptTemplate.from_template(system_template)
+  human_template = """The text delimited in triple backticks:
+  ```{text}```"""
+  human_prompt = HumanMessagePromptTemplate.from_template(human_template)
+  chat_prompt = ChatPromptTemplate.from_messages([system_prompt, human_prompt])
+  result = chat_model(chat_prompt.format_prompt(n=n, text=text).to_messages())
+  try:
+    json_result = json.loads(result.content)
+  except Exception as e:
+    print(e)
+    json_result = result.content
+  return json_result
 
+
+def mc_question_json_v2(text, chat_model, n=5):
+  system_template = """Given the corpus of text, \
+  generate {n} multiple choice questions\
+  based on the contents of the text. The goal of the these questions is to \
+  quiz the audience after who have read the text. Make sure to randomize \
+  the order of the answers for each question. \
+  Format the questions in JSON as follows, make sure to use double quotes: \
+  {{\
+    "questions": [\
+      {{\
+        "question": "Who did X?",\
+        "options": [\
+          {{"A": "Answer 1"}},\
+          {{"B": "Answer 2"}},\
+          {{"C": "Answer 3"}},\
+          {{"D": "Answer 4"}\
+        ],\
+        "correct_answer": {{"C": "Answer 3"}}, \
+        "explanation": "Explanation of the correct answer" \
+      }},\
+      // More questions...\
+    ]\
+  }}
+  """
+  system_prompt = SystemMessagePromptTemplate.from_template(system_template)
   human_template = """The text delimited in triple backticks:
   ```{text}```"""
   human_prompt = HumanMessagePromptTemplate.from_template(human_template)
