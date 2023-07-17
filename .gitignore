@@ -12,3 +12,4 @@ pipfreeze_requirements.txt
 ignore/
 tempsave/
 tempsave
+.vscode/

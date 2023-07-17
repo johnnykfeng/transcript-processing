@@ -13,6 +13,7 @@ show_pages(
     [
         Page("app.py", "App", "📖"),
         Page("pages/README.py", "README", "📜"),
+        Page("pages/quiz.py", "Quiz", "📝")
     ]
 )
 
@@ -83,14 +84,6 @@ if uploaded_file is not None:
         lines = uploaded_file.readlines()
         transcript_text = [line.decode('utf-8') for line in lines]
         transcript_text = '\n'.join(transcript_text)
-
-## -- for debugging -- ##
-# st.write(type(uploaded_file))
-# # st.write(type(transcript_text))
-# print(type(uploaded_file))
-# print(type(transcript_text))
-# st.write(transcript_text[:100])
-# st.write(transcript_text[-100:])
 
     num_tokens = num_tokens_from_string(transcript_text)
     st.info(f"Number of tokens in transcript: {num_tokens}")
