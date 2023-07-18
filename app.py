@@ -99,8 +99,8 @@ def sidebar_session_state(sidebar_placeholder=sidebar_placeholder):
         # else:
         #     st.markdown(f"**Summary**:\n{st.session_state['summary'][:100]}...")
 
-        st.markdown(f"**API Key**:\n{st.session_state['api_key']}")
-        # st.markdown(f"**API Key**:\n{st.session_state['api_key'][:5]}... {st.session_state['api_key'][-5:]}")
+        # st.markdown(f"**API Key**:\n{st.session_state['api_key']}")
+        st.markdown(f"🔑 **API Key**:\n{st.session_state['api_key'][:5]}... ")
         
         if st.session_state['api_key_check']:
             st.markdown("✅ Key is valid ")
@@ -170,7 +170,7 @@ with st.sidebar.form('myform', clear_on_submit=True):
 
     if submitted:
         st.session_state['api_key'] = OPENAI_API_KEY
-        st.caption(f"🔑: {OPENAI_API_KEY}")
+        # st.caption(f"🔑: {OPENAI_API_KEY}")
         if OPENAI_API_KEY.startswith("sk-"):
             st.session_state['api_key_check'] = True
 

@@ -1,5 +1,11 @@
 # Transcript Summarizer and Quiz Generator with Streamlit
+### Video Demo <br>
+https://youtu.be/BUneumKbf60
 
+### Deployed version of the app
+[https://transcript-summarizer.streamlit.app/](https://transcript-summarizer.streamlit.app/)
+
+## About <br>
 The Transcript Summarizer and Quiz Generator is a Streamlit web application built to help users create summary and metadata from long form text, such as a transcript or dense book. Furthermore, it allows you to create a multiple-choice quiz based on the summary created.
 
 The application makes use of OpenAI's GPT-3.5 model for transcript summarization and quiz generation. 
@@ -26,8 +32,6 @@ To run application on your local machine:
 streamlit run app.py
 ```
 
-**Deployed version of this app:** [https://transcript-summarizer.streamlit.app/](https://transcript-summarizer.streamlit.app/)
-
 You will be prompted to enter your OpenAI API key, after which you can upload the document you wish to process. 
 
 Upon submitting the document, the application will generate a summary, create metadata, and allow you to download these results as a zip file. You can then move on to the quiz page where multiple-choice questions are generated based on the summary.
@@ -50,5 +54,3 @@ Email: johnfengphd@gmail.com <br>
 LinkedIn: https://www.linkedin.com/in/john-feng-phd-5735321b8/<br>
 Portfolio: https://johnnykfeng.github.io/ <br>
 Github repo for this app: https://github.com/johnnykfeng/transcript-processing/
-
-

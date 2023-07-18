@@ -1,13 +1,14 @@
 import streamlit as st
 from PIL import Image
 
-image = Image.open('images/LLM_architecture_dark.png')
+image = Image.open('images/LLM_architecture.png')
 
 st.image(image, use_column_width=True)
 
 # st.markdown doesn't display image properly
 # so I removed the image from the README.md file
 with open(r"./pages/streamlit_readme.md", 'r') as file:
+# with open(r"./README.md", 'r') as file:
     lines = file.readlines()
 
 updated_lines = []
