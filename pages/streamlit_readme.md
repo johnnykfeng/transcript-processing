@@ -44,9 +44,11 @@ Upon submitting the document, the application will generate a summary, create me
 https://chat.openai.com/share/47f4aac6-1ddf-4658-8db4-37f6cd79ebcc
 
 
-## Contact
+## Contact and links
 Feel free to leave me feedback :) <br>
 Email: johnfengphd@gmail.com <br>
 LinkedIn: https://www.linkedin.com/in/john-feng-phd-5735321b8/<br>
-Portfolio: https://johnnykfeng.github.io/
+Portfolio: https://johnnykfeng.github.io/ <br>
+Github repo for this app: https://github.com/johnnykfeng/transcript-processing/
+
 
