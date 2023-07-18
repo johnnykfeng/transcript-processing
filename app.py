@@ -60,22 +60,6 @@ def cached_transcript2essay(transcript_path, _chat):
 def cached_extract_metadata_as_json(summary, _chat):
     return extract_metadata_as_json(summary, chat_model=_chat)
 
-# --- HEADER of the app page --- #
-print("++ streamlit app rerun ++")
-
-st.title("Transcript Summarizer 📑")
-description = st.expander("**🙋 What is this app for❓**", expanded=False)
-
-description.write("""This app is for summarizing transcripts into structured format.
-The process takes about 2-5 minutes per file, depending on the length 
-of your transcript.
-The output is a summary in txt, and metadata in json and rst format.
-""")
-
-description.markdown("""*Sometimes the metadata extraction process fails
-            due to inconsitent json formatting. If this happens, you can try
-            running the process again.*""")
-
 # --- INITIALIZING SESSION STATE --- #
 if "summary" not in st.session_state:
     st.session_state['summary'] = "None"
@@ -86,7 +70,6 @@ if "button" not in st.session_state:
     st.session_state['button'] = False
 if "transcript" not in st.session_state:
     st.session_state['transcript'] = "None"
-    
 
 def toggle_button_state():
     st.session_state['button'] = not st.session_state['button']
@@ -102,6 +85,22 @@ def sidebar_session_state(sidebar_placeholder=sidebar_placeholder):
 
 sidebar_session_state(sidebar_placeholder)
 
+# --- HEADER of the app page --- #
+print("++ streamlit app rerun ++")
+
+st.title("Transcript Summarizer 📑")
+description = st.expander("**🙋 What is this app for❓**", expanded=False)
+
+description.write("""This app is for summarizing transcripts into structured format.
+The process takes about 2-5 minutes per file, depending on the length 
+of your transcript.
+The output is a summary in txt, and metadata in json and rst format.
+""")
+
+description.markdown("""*Sometimes the metadata extraction process fails
+            due to inconsitent json formatting. If this happens, you can try
+            running the process again.*""")
+    
 uploaded_file = st.file_uploader("Only accept docx, txt, and md.", 
                                   type = ["docx","txt","md"], 
                                   accept_multiple_files=False)
@@ -145,18 +144,18 @@ with st.sidebar.form('myform', clear_on_submit=True):
     if not st.session_state['api_key_check']:
         st.warning("Please enter a valid OpenAI API Key")
     
-sidebar_session_state(sidebar_placeholder)
+    sidebar_session_state(sidebar_placeholder)
 
 def full_process(transcript_text):
     from langchain.chat_models import ChatOpenAI
 
     chat = ChatOpenAI(
-        openai_api_key=OPENAI_API_KEY ,
+        openai_api_key=st.session_state["api_key"],
         temperature=0,
         model='gpt-3.5-turbo')
 
     chat16k = ChatOpenAI(
-        openai_api_key=OPENAI_API_KEY ,
+        openai_api_key=st.session_state["api_key"],
         temperature=0,
         model='gpt-3.5-turbo-16k')
 

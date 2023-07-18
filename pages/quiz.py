@@ -24,7 +24,13 @@ else:
     print("No file ending with 'summary.txt' found in the specified directory.")
     st.stop() # does this work?
 
+
+if st.session_state['api_key_check'] == False:
+    st.error("No API key found. Please run the app from the beginning.")
+    st.stop() # does this work?
+    
 OPENAI_API_KEY = st.session_state['api_key']
+
 with st.sidebar:
     st.header("Stored Variables")
     with st.expander("Stored Api key "):
@@ -36,8 +42,6 @@ with st.sidebar:
 from langchain.chat_models import ChatOpenAI
 from transcript_processing_functions import mc_question_json
 # OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-
-
 
 chat = ChatOpenAI(
     openai_api_key=OPENAI_API_KEY,
