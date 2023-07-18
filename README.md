@@ -1,5 +1,5 @@
 
-![architecture_diagram](images\LLM_architecture.png)
+![architecture_diagram](./images/LLM_architecture.png)
 
 # Transcript Summarizer and Quiz Generator with Streamlit
 
