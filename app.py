@@ -113,15 +113,15 @@ sidebar_session_state(sidebar_placeholder) # display session state info on sideb
 # --- HEADER of the app page --- #
 print("++ streamlit app rerun ++")
 st.title("Transcript Summarizer 📑")
-description = st.expander("**🙋 What is this app for❓**", expanded=False)
-description.write("""This app is for summarizing transcripts into structured format.
-The process takes about 2-5 minutes per file, depending on the length 
-of your transcript.
-The output is a summary in txt, and metadata in json and rst format.
-""")
-description.markdown("""*Sometimes the metadata extraction process fails
-            due to inconsitent json formatting. If this happens, you can try
-            running the process again.*""")
+# description = st.expander("**🙋 What is this app for❓**", expanded=False)
+# description.write("""This app is for summarizing transcripts into structured format.
+# The process takes about 2-5 minutes per file, depending on the length 
+# of your transcript.
+# The output is a summary in txt, and metadata in json and rst format.
+# """)
+# description.markdown("""*Sometimes the metadata extraction process fails
+            # due to inconsitent json formatting. If this happens, you can try
+            # running the process again.*""")
     
 
 # --- UPLOADING TEXT or TRANSCRIPT --- #
