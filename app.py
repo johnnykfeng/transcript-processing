@@ -94,10 +94,10 @@ def sidebar_session_state(sidebar_placeholder=sidebar_placeholder):
             st.markdown("No transcript uploaded yet.")
         else:
             st.markdown(f"**Transcript**:\n{st.session_state['transcript'][:100]}...")
-        if st.session_state['summary'] is None:
-            st.markdown("No summary generated yet.")
-        else:
-            st.markdown(f"**Summary**:\n{st.session_state['summary'][:100]}...")
+        # if st.session_state['summary'] is None:
+        #     st.markdown("No summary generated yet.")
+        # else:
+        #     st.markdown(f"**Summary**:\n{st.session_state['summary'][:100]}...")
 
         st.markdown(f"**API Key**:\n{st.session_state['api_key']}")
         # st.markdown(f"**API Key**:\n{st.session_state['api_key'][:5]}... {st.session_state['api_key'][-5:]}")
@@ -108,7 +108,7 @@ def sidebar_session_state(sidebar_placeholder=sidebar_placeholder):
             st.markdown("❌ Key is invalid ")
         # st.markdown(f"**api_key_check**:\n{st.session_state['api_key_check']}")
 
-sidebar_session_state(sidebar_placeholder)
+sidebar_session_state(sidebar_placeholder) # display session state info on sidebar
 
 # --- HEADER of the app page --- #
 print("++ streamlit app rerun ++")
@@ -124,7 +124,7 @@ description.markdown("""*Sometimes the metadata extraction process fails
             running the process again.*""")
     
 
-
+# --- UPLOADING TEXT or TRANSCRIPT --- #
 upload_toggle = st.radio("Upload method", options=["File uploader", "Enter text manually"])
 if upload_toggle == "File uploader":
     uploaded_file = st.file_uploader("Only accept docx, txt, and md.", 
@@ -143,6 +143,11 @@ if upload_toggle == "File uploader":
             transcript_text = [line.decode('utf-8') for line in lines]
             transcript_text = '\n'.join(transcript_text)
 
+        st.session_state['transcript'] = transcript_text
+        num_tokens = num_tokens_from_string(transcript_text)
+        st.info(f"Number of tokens in transcript: {num_tokens}")
+        sidebar_session_state(sidebar_placeholder) # display new session state info on sidebar
+
 elif upload_toggle == "Enter text manually":
     transcript_text = st.text_area("Enter your transcript here",
                                       height=300)
@@ -150,12 +155,12 @@ elif upload_toggle == "Enter text manually":
     st.session_state['transcript'] = transcript_text
     num_tokens = num_tokens_from_string(transcript_text)
     st.info(f"Number of tokens in transcript: {num_tokens}")
-
+    sidebar_session_state(sidebar_placeholder) # display new session state info on sidebar
     # remove the file extension from the filename
     # basename = os.path.splitext(uploaded_file.name)[0]
 
-# st.sidebar.caption(f"Stored API Key: \"{st.session_state['api_key']}\" ")
 
+# --- ENTERING API KEY --- #
 with st.sidebar.form('myform', clear_on_submit=True):
     OPENAI_API_KEY = st.text_input('🔑 Enter your OpenAI API Key', type='password', 
                                    disabled=False)
@@ -174,8 +179,9 @@ with st.sidebar.form('myform', clear_on_submit=True):
     if not st.session_state['api_key_check']:
         st.warning("Please enter a valid OpenAI API Key")
     
-    sidebar_session_state(sidebar_placeholder)
+    sidebar_session_state(sidebar_placeholder) # display new session state info on sidebar
 
+# --- FULL LLM PROCESS: generate summary, extract metadata, create zip file --- #
 def full_process(transcript_text):
     from langchain.chat_models import ChatOpenAI
 
