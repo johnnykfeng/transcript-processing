@@ -52,24 +52,36 @@ def zip_all_files_in_folder(folder_path, zip_name):
                 # Add the file to the zip
                 zipf.write(file_path)
 
+def timer(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        st.caption(f"Execution time: {execution_time:.2f} seconds")
+        return result
+    return wrapper
+
+@timer
 @st.cache_data(show_spinner=f"Generating summary from transcript, takes about 1-2 minutes...")
 def cached_transcript2essay(transcript_path, _chat):
     return full_transcript2essay(transcript_path, chat_model=_chat)
 
+@timer
 @st.cache_data(show_spinner=f"Gathering metadata from summary...")
 def cached_extract_metadata_as_json(summary, _chat):
     return extract_metadata_as_json(summary, chat_model=_chat)
 
-# --- INITIALIZING SESSION STATE --- #
+# --- INITIALIZING SESSION STATES --- #
 if "summary" not in st.session_state:
-    st.session_state['summary'] = "None"
+    st.session_state['summary'] = None
 if "api_key" not in st.session_state:
     st.session_state['api_key'] = "None"
     st.session_state['api_key_check'] = False
 if "button" not in st.session_state:
     st.session_state['button'] = False
 if "transcript" not in st.session_state:
-    st.session_state['transcript'] = "None"
+    st.session_state['transcript'] = None
 
 def toggle_button_state():
     st.session_state['button'] = not st.session_state['button']
@@ -78,51 +90,69 @@ def toggle_button_state():
 sidebar_placeholder = st.sidebar.empty()
 def sidebar_session_state(sidebar_placeholder=sidebar_placeholder):
     with sidebar_placeholder.expander("Session State", expanded=False):
-        st.markdown(f"**Transcript**:\n{st.session_state['transcript'][:100]}...")
-        st.markdown(f"**Summary**:\n{st.session_state['summary'][:100]}...")
+        if st.session_state['transcript'] is None:
+            st.markdown("No transcript uploaded yet.")
+        else:
+            st.markdown(f"**Transcript**:\n{st.session_state['transcript'][:100]}...")
+        if st.session_state['summary'] is None:
+            st.markdown("No summary generated yet.")
+        else:
+            st.markdown(f"**Summary**:\n{st.session_state['summary'][:100]}...")
+
         st.markdown(f"**API Key**:\n{st.session_state['api_key']}")
-        st.markdown(f"**api_key_check**:\n{st.session_state['api_key_check']}")
+        # st.markdown(f"**API Key**:\n{st.session_state['api_key'][:5]}... {st.session_state['api_key'][-5:]}")
+        
+        if st.session_state['api_key_check']:
+            st.markdown("✅ Key is valid ")
+        else:
+            st.markdown("❌ Key is invalid ")
+        # st.markdown(f"**api_key_check**:\n{st.session_state['api_key_check']}")
 
 sidebar_session_state(sidebar_placeholder)
 
 # --- HEADER of the app page --- #
 print("++ streamlit app rerun ++")
-
 st.title("Transcript Summarizer 📑")
 description = st.expander("**🙋 What is this app for❓**", expanded=False)
-
 description.write("""This app is for summarizing transcripts into structured format.
 The process takes about 2-5 minutes per file, depending on the length 
 of your transcript.
 The output is a summary in txt, and metadata in json and rst format.
 """)
-
 description.markdown("""*Sometimes the metadata extraction process fails
             due to inconsitent json formatting. If this happens, you can try
             running the process again.*""")
     
-uploaded_file = st.file_uploader("Only accept docx, txt, and md.", 
-                                  type = ["docx","txt","md"], 
-                                  accept_multiple_files=False)
 
-if uploaded_file is not None:
-    if is_docx_file(uploaded_file.name):
-        print("== file is docx ==")
-        transcript_text = extract_text_from_docx(uploaded_file)
 
-    elif is_md_file(uploaded_file.name) or is_txt_file(uploaded_file.name):
-        print("== file is md ==")
-        # transcript_text = uploaded_file.readlines()
-        lines = uploaded_file.readlines()
-        transcript_text = [line.decode('utf-8') for line in lines]
-        transcript_text = '\n'.join(transcript_text)
+upload_toggle = st.radio("Upload method", options=["File uploader", "Enter text manually"])
+if upload_toggle == "File uploader":
+    uploaded_file = st.file_uploader("Only accept docx, txt, and md.", 
+                                    type = ["docx","txt","md"], 
+                                    accept_multiple_files=False)
 
+    if uploaded_file is not None:
+        if is_docx_file(uploaded_file.name):
+            print("== file is docx ==")
+            transcript_text = extract_text_from_docx(uploaded_file)
+
+        elif is_md_file(uploaded_file.name) or is_txt_file(uploaded_file.name):
+            print("== file is md ==")
+            # transcript_text = uploaded_file.readlines()
+            lines = uploaded_file.readlines()
+            transcript_text = [line.decode('utf-8') for line in lines]
+            transcript_text = '\n'.join(transcript_text)
+
+elif upload_toggle == "Enter text manually":
+    transcript_text = st.text_area("Enter your transcript here",
+                                      height=300)
+    
     st.session_state['transcript'] = transcript_text
     num_tokens = num_tokens_from_string(transcript_text)
     st.info(f"Number of tokens in transcript: {num_tokens}")
 
     # remove the file extension from the filename
-    basename = os.path.splitext(uploaded_file.name)[0]
+    # basename = os.path.splitext(uploaded_file.name)[0]
 
 # st.sidebar.caption(f"Stored API Key: \"{st.session_state['api_key']}\" ")
 
@@ -169,16 +199,12 @@ def full_process(transcript_text):
             os.remove(os.path.join(save_directory, f))
 
     # --- TRANSCRIPT SUMMARIZATION --- #
-    t1 = time.time()
     summary = cached_transcript2essay(transcript_text, chat) 
-    t2 = time.time() - t1
     st.session_state['summary'] = summary
-    st.caption(f"Run time for summarization: **{t2:.2f}** seconds")
     st.write('✅ Done!')
     st.info(f"Number of tokens in summary: {num_tokens_from_string(summary)}")
 
     summary_filepath = save_directory + '_summary.txt'
-    # st.caption(f"Saving summary file as {summary_filepath}...")
     with open(summary_filepath, 'w') as file:
         file.write(summary)
 
@@ -199,8 +225,6 @@ def full_process(transcript_text):
     rst_filepath = save_directory + '_metadata.rst'
     json2rst(metadata, rst_filepath)
 
-    t2 = time.time() - t1
-    st.caption(f"Run time for metadata extraction: {t2:.2f} seconds")
     st.write('✅ Done!')
 
     with open(rst_filepath, 'r') as file:
@@ -224,11 +248,11 @@ def full_process(transcript_text):
 if st.button(label="▶️ Start Processing",
              help="Click here to start processing the transcript.", 
              on_click=toggle_button_state,
-             disabled=not (uploaded_file and st.session_state["api_key_check"])):
+             disabled=not (st.session_state['transcript'] and st.session_state["api_key_check"])):
     
     full_process(st.session_state['transcript'])
     sidebar_session_state(sidebar_placeholder)
 
-elif st.session_state['button'] == True:
+elif st.session_state['summary'] != None:
     full_process(st.session_state['transcript'])
     sidebar_session_state(sidebar_placeholder)

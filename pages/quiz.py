@@ -31,6 +31,8 @@ if st.session_state['api_key_check'] == False:
     
 OPENAI_API_KEY = st.session_state['api_key']
 
+st.title("Quiz Generator")
+
 with st.sidebar:
     st.header("Stored Variables")
     with st.expander("Stored Api key "):
