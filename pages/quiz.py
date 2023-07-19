@@ -7,6 +7,8 @@ import glob
 import os
 import random
 
+st.title("👨🏻‍🏫 Quiz Generator")
+# st.write("helloworld")
 # specify the directory you want to search in
 directory = r'./tempsave/'
 
@@ -30,8 +32,6 @@ if st.session_state['api_key_check'] == False:
     st.stop() # does this work?
     
 OPENAI_API_KEY = st.session_state['api_key']
-
-st.title("Quiz Generator")
 
 with st.sidebar:
     st.header("Stored Variables")

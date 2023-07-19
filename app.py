@@ -113,17 +113,12 @@ sidebar_session_state(sidebar_placeholder) # display session state info on sideb
 # --- HEADER of the app page --- #
 print("++ streamlit app rerun ++")
 st.title("Transcript Summarizer 📑")
-# description = st.expander("**🙋 What is this app for❓**", expanded=False)
-# description.write("""This app is for summarizing transcripts into structured format.
-# The process takes about 2-5 minutes per file, depending on the length 
-# of your transcript.
-# The output is a summary in txt, and metadata in json and rst format.
-# """)
-# description.markdown("""*Sometimes the metadata extraction process fails
-            # due to inconsitent json formatting. If this happens, you can try
-            # running the process again.*""")
+with st.expander("🤓 How-to-use", expanded=True):
+    # st.subheader("🤓 How to use")
+    st.write("Video demo: https://youtu.be/BUneumKbf60")
+    st.markdown("""
+                1. 📋 Upload your transcript file (docx, txt, or md) using the file uploader or enter text manually. \n 2. 🔑 Enter your OpenAI API key. \n 3. Click the "▶️ Start Processing" button. \n 4. ⏳ Wait for the process to finish. It takes about 1-3 minutes.""")
     
-
 # --- UPLOADING TEXT or TRANSCRIPT --- #
 upload_toggle = st.radio("Upload method", options=["File uploader", "Enter text manually"])
 if upload_toggle == "File uploader":
@@ -175,8 +170,7 @@ with st.sidebar.form('myform', clear_on_submit=True):
             st.session_state['api_key_check'] = True
 
     # give warning message if not valid
-    # openai.api_key = OPENAI_API_KEY
-    if not st.session_state['api_key_check']:
+    if (not st.session_state['api_key_check']) and (st.session_state['api_key'] != "None"):
         st.warning("Please enter a valid OpenAI API Key")
     
     sidebar_session_state(sidebar_placeholder) # display new session state info on sidebar

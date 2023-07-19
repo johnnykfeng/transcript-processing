@@ -13,3 +13,4 @@ ignore/
 tempsave/
 tempsave
 .vscode/
+youtube_transcriber.py
