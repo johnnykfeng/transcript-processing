@@ -113,11 +113,11 @@ sidebar_session_state(sidebar_placeholder) # display session state info on sideb
 # --- HEADER of the app page --- #
 print("++ streamlit app rerun ++")
 st.title("Transcript Summarizer 📑")
-with st.expander("🤓 How-to-use", expanded=True):
+with st.expander("How-to-use", expanded=True):
     # st.subheader("🤓 How to use")
     st.write("Video demo: https://youtu.be/BUneumKbf60")
     st.markdown("""
-                1. 📋 Upload your transcript file (docx, txt, or md) using the file uploader or enter text manually. \n 2. 🔑 Enter your OpenAI API key. \n 3. Click the "▶️ Start Processing" button. \n 4. ⏳ Wait for the process to finish. It takes about 1-3 minutes.""")
+                1. Upload your transcript file (docx, txt, or md) using the file uploader or enter text manually. \n 2. 🔑 Enter your OpenAI API key. \n 3. Click the "▶️ Start Processing" button. \n 4. Wait for the process to finish. It takes about 1-3 minutes.""")
     
 # --- UPLOADING TEXT or TRANSCRIPT --- #
 upload_toggle = st.radio("Upload method", options=["File uploader", "Enter text manually"])
